@@ -1,0 +1,17 @@
+version: "3.1"
+services:
+  snarkon:
+    container_name: snarkon
+    build:
+      context: ./
+    ports:
+      - 5000:5000 # host:container
+    volumes:
+      - ./:/app
+      - ~/.aws:/root/.aws
+    environment:
+      - FLASK_APP=/app/app.py
+      - FLASK_DEBUG=1
+      - AWS_S3_BUCKET=nld-datalab
+    command: flask run --host=0.0.0.0 --port=5000
+    privileged: true
