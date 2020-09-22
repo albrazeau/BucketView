@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <title>SNARKON: {{ aws_bucket }}</title>
+    <!-- <link rel="stylesheet" media="screen" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .flashes {
+            background-color: green;
+            color: white;
+            padding: 10px;
+            width: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <br>
+        <h1>Welcome to snarkon</h1>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class=flashes>
+            {% for message in messages %}
+            <h2>{{ message }}</h2>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        <form action="" method="post" role="form" enctype="multipart/form-data">
+            {{ form.csrf }}
+            <div class="form-group">
+                <label for="input_file">Upload File:</label>
+                <input type="file" class="custom-file-label" id="input_file" name="input_file">
+                <button type="submit" class="btn btn-success">Submit</button>
+                <br><br>
+            </div>
+        </form>
+    </center>
+    {{ bucket_content|safe }}
+</body>

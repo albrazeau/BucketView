@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, send_file, request
+from flask import Flask, redirect, url_for, send_file, request, flash, render_template
 from werkzeug.utils import secure_filename
 from wtforms import Form, FileField, validators
 import pathlib as pl
@@ -9,20 +9,7 @@ from modules import mount_bkt
 MOUNT_POINT = mount_bkt()
 AWS_BUCKET = os.getenv("AWS_S3_BUCKET")
 app = Flask(__name__)
-
-upload_form_string = """
-            <br>
-            <h1>Welcome to snarkon</h1>
-            <br><br>
-            <form action="" method="post" role="form" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="input_file">Upload File:</label>
-                    <input type="file" class="custom-file-label" id="input_file" name="input_file">
-                    <button type="submit" class="btn btn-success">Submit</button>
-                    <br><br>
-                </div>
-            </form>
-            """
+app.config["SECRET_KEY"] = "a super secret key"
 
 
 class ReusableForm(Form):
@@ -60,13 +47,15 @@ def explorer():
 
     if request.method == "GET":
         html_content_list = dir_contents(cwd)
-        return "<center>" + upload_form_string + html_content_list + "</center>"
+        bucket_content = "<center>" + html_content_list + "</center>"
+        return render_template("main.html", form=form, bucket_content=bucket_content, aws_bucket=AWS_BUCKET)
 
     else:
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
         inputfile = os.path.join(str(cwd), filename)
         input_file.save(inputfile)
+        flash(f"Successfully uploaded {filename}")
         return redirect(request.url)
 
 
@@ -81,13 +70,15 @@ def within_dir(dir_path):
 
     if request.method == "GET":
         html_content_list = dir_contents(cwd)
-        return "<center>" + upload_form_string + html_content_list + "</center>"
+        bucket_content = "<center>" + html_content_list + "</center>"
+        return render_template("main.html", form=form, bucket_content=bucket_content, aws_bucket=AWS_BUCKET)
 
     else:
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
         inputfile = os.path.join(str(cwd), filename)
         input_file.save(inputfile)
+        flash(f"Successfully uploaded {filename}")
         return redirect(request.url)
 
 
