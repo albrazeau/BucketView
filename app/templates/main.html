@@ -6,8 +6,15 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        .flashes {
+        .success {
             background-color: green;
+            color: white;
+            padding: 10px;
+            width: 50%;
+        }
+
+        .error {
+            background-color: rgb(146, 7, 7);
             color: white;
             padding: 10px;
             width: 50%;
@@ -27,11 +34,11 @@
     <center>
         <br>
         <h1>Welcome to snarkon</h1>
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         <ul class=flashes>
-            {% for message in messages %}
-            <h2>{{ message }}</h2>
+            {% for category, message in messages %}
+            <h2 class="{{ category }}">{{ message }}</h2>
             {% endfor %}
         </ul>
         {% endif %}

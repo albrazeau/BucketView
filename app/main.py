@@ -58,14 +58,21 @@ def explorer():
         if create_dir and validate_dir_name(create_dir):
             new_dir = os.path.join(str(dir_path), create_dir)
             os.mkdir(new_dir)
-            flash(f"Successfully created {create_dir}")
+            flash(f"Successfully created {create_dir}", "success")
+            return redirect(request.url)
+        elif create_dir and not validate_dir_name(create_dir):
+            illegal_chars = r"""`~!@#$%^&*()=+[{]}\|:;"'<,>.?/"""
+            flash(
+                f"Error creating {create_dir}, cannot contain a space or the following characters: {illegal_chars}",
+                "error",
+            )
             return redirect(request.url)
 
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
         inputfile = os.path.join(str(dir_path), filename)
         input_file.save(inputfile)
-        flash(f"Successfully uploaded {filename}")
+        flash(f"Successfully uploaded {filename}", "success")
         return redirect(request.url)
 
 
@@ -87,14 +94,21 @@ def within_dir(dir_path):
         if create_dir and validate_dir_name(create_dir):
             new_dir = os.path.join(str(dir_path), create_dir)
             os.mkdir(new_dir)
-            flash(f"Successfully created {create_dir}")
+            flash(f"Successfully created {create_dir}", "success")
+            return redirect(request.url)
+        elif create_dir and not validate_dir_name(create_dir):
+            illegal_chars = r"""`~!@#$%^&*()=+[{]}\|:;"'<,>.?/"""
+            flash(
+                f"Error creating {create_dir}, cannot contain a space or the following characters: {illegal_chars}",
+                "error",
+            )
             return redirect(request.url)
 
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
         inputfile = os.path.join(str(dir_path), filename)
         input_file.save(inputfile)
-        flash(f"Successfully uploaded {filename}")
+        flash(f"Successfully uploaded {filename}", "success")
         return redirect(request.url)
 
 
