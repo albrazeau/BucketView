@@ -1,4 +1,4 @@
-FROM python:3.7.2-stretch
+FROM tiangolo/uwsgi-nginx-flask:python3.8
 
 # install goofys
 RUN apt-get update && \
@@ -14,8 +14,6 @@ RUN apt-get update && \
     && apt-get purge -y --auto-remove \
     curl
 
-WORKDIR /app
+COPY ./app /app
 
-ADD . /app
-
-RUN pip install -r requirements.txt
+RUN pip install -r /app/requirements.txt

@@ -4,12 +4,15 @@ from wtforms import Form, FileField, validators
 import pathlib as pl
 import os
 from modules import mount_bkt
+from functools import partial
 
 
 MOUNT_POINT = mount_bkt()
 AWS_BUCKET = os.getenv("AWS_S3_BUCKET")
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "a super secret key"
+
+print = partial(print, flush=True)
 
 
 class ReusableForm(Form):
@@ -42,18 +45,17 @@ def explorer():
     form = ReusableForm(request.form)
     print(form.errors)
 
-    os.chdir(MOUNT_POINT)
-    cwd = pl.Path(os.getcwd())
+    dir_path = pl.Path("/" + MOUNT_POINT)
 
     if request.method == "GET":
-        html_content_list = dir_contents(cwd)
+        html_content_list = dir_contents(dir_path)
         bucket_content = "<center>" + html_content_list + "</center>"
         return render_template("main.html", form=form, bucket_content=bucket_content, aws_bucket=AWS_BUCKET)
 
     else:
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
-        inputfile = os.path.join(str(cwd), filename)
+        inputfile = os.path.join(str(dir_path), filename)
         input_file.save(inputfile)
         flash(f"Successfully uploaded {filename}")
         return redirect(request.url)
@@ -65,18 +67,17 @@ def within_dir(dir_path):
     form = ReusableForm(request.form)
     print(form.errors)
 
-    os.chdir("/" + dir_path)
-    cwd = pl.Path(os.getcwd())
+    dir_path = pl.Path("/" + dir_path)
 
     if request.method == "GET":
-        html_content_list = dir_contents(cwd)
+        html_content_list = dir_contents(dir_path)
         bucket_content = "<center>" + html_content_list + "</center>"
         return render_template("main.html", form=form, bucket_content=bucket_content, aws_bucket=AWS_BUCKET)
 
     else:
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
-        inputfile = os.path.join(str(cwd), filename)
+        inputfile = os.path.join(str(dir_path), filename)
         input_file.save(inputfile)
         flash(f"Successfully uploaded {filename}")
         return redirect(request.url)
