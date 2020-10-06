@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 from wtforms import Form, FileField, validators, TextField
 import pathlib as pl
 import os
-from modules import mount_bkt
+from modules import mount_bkt, validate_dir_name
 from functools import partial
 
 
@@ -55,7 +55,7 @@ def explorer():
 
     else:
         create_dir = request.form["create_dir"]
-        if create_dir:
+        if create_dir and validate_dir_name(create_dir):
             new_dir = os.path.join(str(dir_path), create_dir)
             os.mkdir(new_dir)
             flash(f"Successfully created {create_dir}")
@@ -83,6 +83,13 @@ def within_dir(dir_path):
         return render_template("main.html", form=form, bucket_content=bucket_content, aws_bucket=AWS_BUCKET)
 
     else:
+        create_dir = request.form["create_dir"]
+        if create_dir and validate_dir_name(create_dir):
+            new_dir = os.path.join(str(dir_path), create_dir)
+            os.mkdir(new_dir)
+            flash(f"Successfully created {create_dir}")
+            return redirect(request.url)
+
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
         inputfile = os.path.join(str(dir_path), filename)
