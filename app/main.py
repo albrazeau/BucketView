@@ -1,6 +1,6 @@
 from flask import Flask, redirect, url_for, send_file, request, flash, render_template
 from werkzeug.utils import secure_filename
-from wtforms import Form, FileField, validators
+from wtforms import Form, FileField, validators, TextField
 import pathlib as pl
 import os
 from modules import mount_bkt
@@ -16,7 +16,8 @@ print = partial(print, flush=True)
 
 
 class ReusableForm(Form):
-    input_file = FileField("input_file:", validators=[validators.DataRequired()])
+    input_file = FileField("input_file:")  # , validators=[validators.DataRequired()])
+    create_dir = TextField("create_dir:")
 
 
 def dir_contents(pth: pl.Path):
@@ -53,6 +54,13 @@ def explorer():
         return render_template("main.html", form=form, bucket_content=bucket_content, aws_bucket=AWS_BUCKET)
 
     else:
+        create_dir = request.form["create_dir"]
+        if create_dir:
+            new_dir = os.path.join(str(dir_path), create_dir)
+            os.mkdir(new_dir)
+            flash(f"Successfully created {create_dir}")
+            return redirect(request.url)
+
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
         inputfile = os.path.join(str(dir_path), filename)
