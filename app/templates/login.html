@@ -31,12 +31,27 @@
 </head>
 
 <body>
-    <br>
-    <a href={{ url_for('logout') }}>Logout</a>
-    <br>
     <center>
-        <br>
-        <h1>Welcome to snarkon: {{ aws_bucket }}</h1>
+        <h1>Sign In</h1>
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.email.label }}<br>
+                {{ form.email(size=32) }}
+                {% for error in form.email.errors %}
+            <div style="color: red;">[{{ error }}]</div>
+            {% endfor %}
+            </p>
+            <p>
+                {{ form.password.label }}<br>
+                {{ form.password(size=32) }}
+                {% for error in form.password.errors %}
+            <div style="color: red;">[{{ error }}]</div>
+            {% endfor %}
+            </p>
+            <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+            <p>{{ form.submit() }}</p>
+        </form>
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         <ul class=flashes>
@@ -46,19 +61,5 @@
         </ul>
         {% endif %}
         {% endwith %}
-        <form action="" method="post" role="form" enctype="multipart/form-data">
-            {{ form.csrf }}
-            <div class="form-group">
-                <label for="input_file">Upload File:</label>
-                <input type="file" class="custom-file-label" id="input_file" name="input_file">
-                <br><br>
-                <label for="create_dir">Create a directory:</label>
-                <input type="text" class="form-control" id="create_dir" name="create_dir">
-                <br><br>
-                <button type="submit" class="btn btn-success">Submit</button>
-                <br><br>
-            </div>
-        </form>
     </center>
-    {{ bucket_content|safe }}
 </body>

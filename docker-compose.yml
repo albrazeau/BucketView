@@ -9,4 +9,5 @@ services:
       - ~/.aws:/root/.aws
     environment:
       - AWS_S3_BUCKET=nld-datalab
+      - SQLITE_DB=db.sqlite
     privileged: true

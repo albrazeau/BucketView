@@ -11,6 +11,7 @@ services:
       - FLASK_DEBUG=1
       - 'RUN=flask run --host=0.0.0.0 --port=80'   
       - AWS_S3_BUCKET=nld-datalab 
+      - SQLITE_DB=db.sqlite
     command: flask run --host=0.0.0.0 --port=80
     # Infinite loop, to keep it alive, for debugging
     # command: bash -c "while true; do echo 'sleeping...' && sleep 10; done"

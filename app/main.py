@@ -1,23 +1,48 @@
 from flask import Flask, redirect, url_for, send_file, request, flash, render_template
+from flask_login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.utils import secure_filename
-from wtforms import Form, FileField, validators, TextField
+from wtforms import Form, FileField, validators, TextField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired
+from flask_wtf import FlaskForm
 import pathlib as pl
 import os
 from modules import mount_bkt, validate_dir_name
 from functools import partial
+from db import db_init_app, User
 
 
 MOUNT_POINT = mount_bkt()
 AWS_BUCKET = os.getenv("AWS_S3_BUCKET")
+
 app = Flask(__name__)
+
 app.config["SECRET_KEY"] = "a super secret key"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.getenv('SQLITE_DB')}"
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+db = db_init_app(app)
 
 print = partial(print, flush=True)
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
+
 class ReusableForm(Form):
-    input_file = FileField("input_file:")  # , validators=[validators.DataRequired()])
+    input_file = FileField("input_file:")
     create_dir = TextField("create_dir:")
+
+
+class LoginForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    remember_me = BooleanField("Remember Me")
+    submit = SubmitField("Sign In")
 
 
 def dir_contents(pth: pl.Path):
@@ -35,12 +60,29 @@ def dir_contents(pth: pl.Path):
     return "".join(html_content_list)
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("index"))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash("Invalid username or password", "error")
+            return redirect(url_for("login"))
+        login_user(user, remember=form.remember_me.data)
+        return redirect(url_for("index"))
+    return render_template("login.html", title="Sign In", form=form)
+
+
 @app.route("/")
+@login_required
 def index():
     return redirect(f"/explorer/{AWS_BUCKET}")
 
 
 @app.route(f"/explorer/{AWS_BUCKET}", methods=["GET", "POST"])
+@login_required
 def explorer():
 
     form = ReusableForm(request.form)
@@ -77,6 +119,7 @@ def explorer():
 
 
 @app.route(f"/explorer/<path:dir_path>", methods=["GET", "POST"])
+@login_required
 def within_dir(dir_path):
 
     form = ReusableForm(request.form)
@@ -113,5 +156,13 @@ def within_dir(dir_path):
 
 
 @app.route(f"/download/<path:filepath>")
+@login_required
 def download_file(filepath):
     return send_file("/" + filepath, as_attachment=True)
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("index"))
