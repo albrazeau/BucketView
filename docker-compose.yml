@@ -5,9 +5,9 @@ services:
     ports:
       - 80:80
     volumes:
-      # - ./:/app
+      - ./app:/app
       - ~/.aws:/root/.aws
-      # - nginx logs
+      - ./logs:/var/log/nginx
     environment:
       - AWS_S3_BUCKET=nld-datalab
       - SQLITE_DB=db.sqlite
