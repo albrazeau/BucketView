@@ -6,7 +6,9 @@ from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 import pathlib as pl
 import os
-from modules import mount_bkt, validate_dir_name
+import subprocess
+from shutil import copy
+from modules import mount_bkt, validate_dir_name, make_temp_dir, upload_file
 from functools import partial
 from db import db_init_app, User
 
@@ -18,6 +20,9 @@ app = Flask(__name__)
 
 app.config["SECRET_KEY"] = "a super secret key"
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.getenv('SQLITE_DB')}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["UPLOAD_DIR"] = "/temp-upload-dir"
+make_temp_dir(app.config["UPLOAD_DIR"])
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -46,7 +51,12 @@ class LoginForm(FlaskForm):
 
 
 def dir_contents(pth: pl.Path):
-    dir_content = list(pth.glob("*"))
+    try:
+        dir_content = list(pth.glob("*"))
+    except OSError:
+        print("fixing the mount mount from dir_contents()...")
+        mount_bkt()
+        dir_content = list(pth.glob("*"))
     html_content_list = []
     for x in dir_content:
         if x.is_file():
@@ -88,7 +98,7 @@ def explorer():
     form = ReusableForm(request.form)
     print(form.errors)
 
-    dir_path = pl.Path("/" + MOUNT_POINT)
+    dir_path = pl.Path(MOUNT_POINT)
 
     if request.method == "GET":
         html_content_list = dir_contents(dir_path)
@@ -112,9 +122,14 @@ def explorer():
 
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
-        inputfile = os.path.join(str(dir_path), filename)
-        input_file.save(inputfile)
-        flash(f"Successfully uploaded {filename}", "success")
+        tmpfile = os.path.join(app.config["UPLOAD_DIR"], filename)
+        input_file.save(tmpfile)
+        uploaded_target_file = os.path.join(str(dir_path), filename)
+        if upload_file(tmpfile, AWS_BUCKET, uploaded_target_file.split(MOUNT_POINT + "/")[1]):
+            flash(f"Successfully uploaded {filename}", "success")
+        else:
+            flash(f"Error uploading {filename}", "error")
+        os.remove(tmpfile)
         return redirect(request.url)
 
 
@@ -149,9 +164,14 @@ def within_dir(dir_path):
 
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
-        inputfile = os.path.join(str(dir_path), filename)
-        input_file.save(inputfile)
-        flash(f"Successfully uploaded {filename}", "success")
+        tmpfile = os.path.join(app.config["UPLOAD_DIR"], filename)
+        input_file.save(tmpfile)
+        uploaded_target_file = os.path.join(str(dir_path), filename)
+        if upload_file(tmpfile, AWS_BUCKET, uploaded_target_file.split(MOUNT_POINT + "/")[1]):
+            flash(f"Successfully uploaded {filename}", "success")
+        else:
+            flash(f"Error uploading {filename}", "error")
+        os.remove(tmpfile)
         return redirect(request.url)
 
 

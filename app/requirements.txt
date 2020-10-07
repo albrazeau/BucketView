@@ -4,3 +4,4 @@ flask-sqlalchemy
 flask-login
 Flask-WTF
 email-validator
+boto3
