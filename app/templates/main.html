@@ -4,6 +4,7 @@
     <title>SNARKON: {{ aws_bucket }}</title>
     <!-- <link rel="stylesheet" media="screen" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         .success {
@@ -26,6 +27,26 @@
 
         a:hover {
             text-decoration: underline;
+        }
+
+        .folder-icon {
+            color: black;
+            margin-left: 2.5px;
+            margin-right: 2.5px;
+            background-color: white;
+
+            padding: 0px;
+            border-radius: 3px;
+        }
+
+        .file-icon {
+            color: white;
+            margin-left: 2.5px;
+            margin-right: 2.5px;
+            background-color: black;
+
+            padding: 0px;
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -60,5 +81,28 @@
             </div>
         </form>
     </center>
-    {{ bucket_content|safe }}
+    <!-- {{ bucket_content|safe }} -->
+    <center>
+        <table style="width:70%">
+            <tr>
+                <th>Name</th>
+                <th>Last Modified</th>
+                <th>Size</th>
+            </tr>
+            {% for d in bucket_content %}
+            <tr>
+                {% if d['is_dir'] %}
+                <td><span class="folder-icon"><i class="far fa-folder"></i></span>
+                    <a href="{{ d['link'] }}">{{ d['link_name'] }}</a></td>
+                {% else %}
+                <td><span class="file-icon"></span><i class="far fa-file"></i></span>
+                    <a href="{{ d['link'] }}">{{ d['link_name'] }}</a></td>
+                {% endif %}
+                <td>{{ d['last_modified'] }}</td>
+                <td>{{ d['size'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </center>
+
 </body>

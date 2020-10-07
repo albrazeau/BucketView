@@ -8,7 +8,7 @@ import pathlib as pl
 import os
 import subprocess
 from shutil import copy
-from modules import mount_bkt, validate_dir_name, make_temp_dir, upload_file
+from modules import mount_bkt, validate_dir_name, make_temp_dir, upload_file, dir_contents
 from functools import partial
 from db import db_init_app, User
 
@@ -50,26 +50,6 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Sign In")
 
 
-def dir_contents(pth: pl.Path):
-    try:
-        dir_content = list(pth.glob("*"))
-    except OSError:
-        print("fixing the mount mount from dir_contents()...")
-        mount_bkt()
-        dir_content = list(pth.glob("*"))
-    html_content_list = []
-    for x in dir_content:
-        if x.is_file():
-            download_url = url_for("download_file", filepath=str(x))
-            item = f'<br><a href="{download_url}">{x.name}</a><br>'
-            html_content_list.append(item)
-        else:
-            redirect_url = url_for("within_dir", dir_path=str(x))
-            item = f'<br><a href="{redirect_url}">{x.name}/</a><br>'
-            html_content_list.append(item)
-    return "".join(html_content_list)
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -102,8 +82,7 @@ def explorer():
 
     if request.method == "GET":
         html_content_list = dir_contents(dir_path)
-        bucket_content = "<center>" + html_content_list + "</center>"
-        return render_template("main.html", form=form, bucket_content=bucket_content, aws_bucket=AWS_BUCKET)
+        return render_template("main.html", form=form, bucket_content=html_content_list, aws_bucket=AWS_BUCKET)
 
     else:
         create_dir = request.form["create_dir"]
@@ -144,8 +123,7 @@ def within_dir(dir_path):
 
     if request.method == "GET":
         html_content_list = dir_contents(dir_path)
-        bucket_content = "<center>" + html_content_list + "</center>"
-        return render_template("main.html", form=form, bucket_content=bucket_content, aws_bucket=AWS_BUCKET)
+        return render_template("main.html", form=form, bucket_content=html_content_list, aws_bucket=AWS_BUCKET)
 
     else:
         create_dir = request.form["create_dir"]
