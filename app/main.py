@@ -82,7 +82,7 @@ def index():
 def explorer():
 
     form = ReusableForm(request.form)
-    print(form.errors)
+    # print(form.errors)
 
     dir_path = pl.Path(MOUNT_POINT)
 
@@ -146,7 +146,7 @@ def explorer():
 def within_dir(dir_path):
 
     form = ReusableForm(request.form)
-    print(form.errors)
+    # print(form.errors)
 
     dir_path = pl.Path("/" + dir_path)
 

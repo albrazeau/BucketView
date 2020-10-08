@@ -8,6 +8,7 @@ services:
       - ./app:/app
       - ~/.aws:/root/.aws
       - ./logs:/var/log/nginx
+      - ./custom.conf:/etc/nginx/conf.d/custom.conf
     environment:
       - AWS_S3_BUCKET=nld-datalab
       - SQLITE_DB=db.sqlite
