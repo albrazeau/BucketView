@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, send_file, request, flash, render_template
+from flask import Flask, redirect, url_for, send_file, request, flash, render_template, after_this_request
 from flask_login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.utils import secure_filename
 from wtforms import Form, FileField, validators, TextField, StringField, PasswordField, BooleanField, SubmitField
@@ -7,7 +7,7 @@ from flask_wtf import FlaskForm
 import pathlib as pl
 import os
 import subprocess
-from shutil import copy
+from shutil import make_archive
 from modules import mount_bkt, validate_dir_name, make_temp_dir, upload_file, dir_contents
 from functools import partial
 from db import db_init_app, User
@@ -21,8 +21,8 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "a super secret key"
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.getenv('SQLITE_DB')}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["UPLOAD_DIR"] = "/temp-upload-dir"
-make_temp_dir(app.config["UPLOAD_DIR"])
+app.config["TEMP_DIR"] = "/temp-flask-dir"
+make_temp_dir(app.config["TEMP_DIR"])
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -82,7 +82,15 @@ def explorer():
 
     if request.method == "GET":
         html_content_list = dir_contents(dir_path)
-        return render_template("main.html", form=form, bucket_content=html_content_list, aws_bucket=AWS_BUCKET)
+        nav_parts = [x for x in dir_path.parts if x != "/"]
+        return render_template(
+            "main.html",
+            form=form,
+            bucket_content=html_content_list,
+            aws_bucket=AWS_BUCKET,
+            nav_parts=nav_parts,
+            nav_len=len(nav_parts),
+        )
 
     else:
         create_dir = request.form["create_dir"]
@@ -101,7 +109,7 @@ def explorer():
 
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
-        tmpfile = os.path.join(app.config["UPLOAD_DIR"], filename)
+        tmpfile = os.path.join(app.config["TEMP_DIR"], filename)
         input_file.save(tmpfile)
         uploaded_target_file = os.path.join(str(dir_path), filename)
         if upload_file(tmpfile, AWS_BUCKET, uploaded_target_file.split(MOUNT_POINT + "/")[1]):
@@ -123,7 +131,15 @@ def within_dir(dir_path):
 
     if request.method == "GET":
         html_content_list = dir_contents(dir_path)
-        return render_template("main.html", form=form, bucket_content=html_content_list, aws_bucket=AWS_BUCKET)
+        nav_parts = [x for x in dir_path.parts if x != "/"]
+        return render_template(
+            "main.html",
+            form=form,
+            bucket_content=html_content_list,
+            aws_bucket=AWS_BUCKET,
+            nav_parts=nav_parts,
+            nav_len=len(nav_parts),
+        )
 
     else:
         create_dir = request.form["create_dir"]
@@ -142,7 +158,7 @@ def within_dir(dir_path):
 
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
-        tmpfile = os.path.join(app.config["UPLOAD_DIR"], filename)
+        tmpfile = os.path.join(app.config["TEMP_DIR"], filename)
         input_file.save(tmpfile)
         uploaded_target_file = os.path.join(str(dir_path), filename)
         if upload_file(tmpfile, AWS_BUCKET, uploaded_target_file.split(MOUNT_POINT + "/")[1]):
@@ -157,6 +173,24 @@ def within_dir(dir_path):
 @login_required
 def download_file(filepath):
     return send_file("/" + filepath, as_attachment=True)
+
+
+@app.route(f"/download/dir/<path:dir_path>")
+@login_required
+def download_dir(dir_path):
+
+    dir_path = pl.Path("/" + dir_path)
+
+    output_zipfile = os.path.join(app.config["TEMP_DIR"], dir_path.stem)
+
+    make_archive(output_zipfile, "zip", dir_path)
+
+    @after_this_request
+    def remove_file(response):
+        os.remove(output_zipfile + ".zip")
+        return response
+
+    return send_file(output_zipfile + ".zip", as_attachment=True)
 
 
 @app.route("/logout")

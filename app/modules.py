@@ -92,14 +92,29 @@ def dir_contents(pth: pl.Path):
     for x in dir_content:
         stat = x.stat()
         if x.is_file():
-            url = url_for("download_file", filepath=str(x))
+            download_url = url_for("download_file", filepath=str(x))
             size = pretty_size(stat.st_size)
             mod = datetime.fromtimestamp(stat.st_mtime).strftime("%A, %B %d, %Y %I:%M:%S")
-            item = {"link": url, "link_name": x.name, "size": size, "last_modified": mod, "is_dir": False}
+            item = {
+                "nav_url": None,
+                "download_url": download_url,
+                "link_name": x.name,
+                "size": size,
+                "last_modified": mod,
+                "is_dir": False,
+            }
             file_list.append(item)
         else:
-            url = url_for("within_dir", dir_path=str(x))
-            item = {"link": url, "link_name": x.name, "size": "--", "last_modified": "--", "is_dir": True}
+            download_url = url_for("download_dir", dir_path=str(x))
+            nav_url = url_for("within_dir", dir_path=str(x))
+            item = {
+                "nav_url": nav_url,
+                "download_url": download_url,
+                "link_name": x.name,
+                "size": "--",
+                "last_modified": "--",
+                "is_dir": True,
+            }
             dir_list.append(item)
 
     return sorted(dir_list, key=lambda d: d["link_name"]) + sorted(file_list, key=lambda d: d["link_name"])

@@ -54,6 +54,22 @@
 <body>
     <br>
     <a href={{ url_for('logout') }}>Logout</a>
+    <center>
+        <table>
+            <tr>
+                {% for i in range(nav_len) %}
+                <td style="text-align: center; padding-right: 6px; padding-left: 6px;">
+                    <span class="folder-icon"><i class="far fa-folder"></i></span>
+                    <a href={{ url_for('within_dir', dir_path="/" + "/".join(nav_parts[:i+1])) }}>{{ nav_parts[i] }}</a>
+                </td>
+                {% if nav_parts[i] != nav_parts[-1] %}
+                <td style="text-align: center">/</td>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </table>
+
+    </center>
     <br>
     <center>
         <br>
@@ -85,18 +101,25 @@
     <center>
         <table style="width:70%">
             <tr>
-                <th>Name</th>
-                <th>Last Modified</th>
-                <th>Size</th>
+                <th style="text-align: left">Name</th>
+                <th style="text-align: left">Download Link</th>
+                <th style="text-align: left">Last Modified</th>
+                <th style="text-align: left">Size</th>
             </tr>
             {% for d in bucket_content %}
             <tr>
                 {% if d['is_dir'] %}
-                <td><span class="folder-icon"><i class="far fa-folder"></i></span>
-                    <a href="{{ d['link'] }}">{{ d['link_name'] }}</a></td>
+                <td>
+                    <span class="folder-icon"><i class="far fa-folder"></i></span>
+                    <a href="{{ d['nav_url'] }}">{{ d['link_name'] }}</a>
+                <td><a href="{{ d['download_url'] }}">Download Zip</a></td>
+                </td>
                 {% else %}
-                <td><span class="file-icon"></span><i class="far fa-file"></i></span>
-                    <a href="{{ d['link'] }}">{{ d['link_name'] }}</a></td>
+                <td>
+                    <span class="file-icon"></span><i class="far fa-file"></i></span>
+                    <span>{{ d['link_name'] }}</span>
+                <td><a href="{{ d['download_url'] }}">Download File</a></td>
+                </td>
                 {% endif %}
                 <td>{{ d['last_modified'] }}</td>
                 <td>{{ d['size'] }}</td>
