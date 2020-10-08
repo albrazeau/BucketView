@@ -96,9 +96,13 @@ def explorer():
         create_dir = request.form["create_dir"]
         if create_dir and validate_dir_name(create_dir):
             new_dir = os.path.join(str(dir_path), create_dir)
-            os.mkdir(new_dir)
-            flash(f"Successfully created {create_dir}", "success")
-            return redirect(request.url)
+            if not os.path.exists(new_dir):
+                os.mkdir(new_dir)
+                flash(f"Successfully created {create_dir}!", "success")
+                return redirect(request.url)
+            else:
+                flash(f"{create_dir} already exists!", "error")
+                return redirect(request.url)
         elif create_dir and not validate_dir_name(create_dir):
             illegal_chars = r"""`~!@#$%^&*()=+[{]}\|:;"'<,>.?/"""
             flash(
@@ -145,9 +149,13 @@ def within_dir(dir_path):
         create_dir = request.form["create_dir"]
         if create_dir and validate_dir_name(create_dir):
             new_dir = os.path.join(str(dir_path), create_dir)
-            os.mkdir(new_dir)
-            flash(f"Successfully created {create_dir}", "success")
-            return redirect(request.url)
+            if not os.path.exists(new_dir):
+                os.mkdir(new_dir)
+                flash(f"Successfully created {create_dir}!", "success")
+                return redirect(request.url)
+            else:
+                flash(f"{create_dir} already exists!", "error")
+                return redirect(request.url)
         elif create_dir and not validate_dir_name(create_dir):
             illegal_chars = r"""`~!@#$%^&*()=+[{]}\|:;"'<,>.?/"""
             flash(
