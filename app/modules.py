@@ -7,6 +7,7 @@ import boto3
 from botocore.exceptions import ClientError
 from flask import url_for
 from datetime import datetime
+import time
 
 
 def upload_file(file_name, bucket, object_name):
@@ -94,7 +95,7 @@ def dir_contents(pth: pl.Path):
         if x.is_file():
             download_url = url_for("download_file", filepath=str(x))
             size = pretty_size(stat.st_size)
-            mod = datetime.fromtimestamp(stat.st_mtime).strftime("%A, %B %d, %Y %I:%M:%S")
+            mod = datetime.fromtimestamp(stat.st_mtime).strftime("%A, %B %d, %Y %H:%M:%S") + f" {time.tzname[0]}"
             item = {
                 "nav_url": None,
                 "download_url": download_url,
