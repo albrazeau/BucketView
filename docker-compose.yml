@@ -1,15 +1,33 @@
-version: '3'
+version: '3.4'
 services:
   bucketview:
     build: ./
-    ports:
-      - 80:80
+    # ports:
+    #   - 80:80
+    restart: always
     volumes:
       - ./app:/app
       - ~/.aws:/root/.aws
       - ./logs:/var/log/nginx
       - ./custom.conf:/etc/nginx/conf.d/custom.conf
     environment:
-      - AWS_S3_BUCKET=nld-datalab
+      - AWS_S3_BUCKET=nyc-dewberry
       - SQLITE_DB=db.sqlite
     privileged: true
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.my-app.rule=Host(`example.com`)'
+      - 'traefik.http.routers.my-app.tls=true'
+      - 'traefik.http.routers.my-app.tls.certresolver=lets-encrypt'
+  
+  traefik:
+    image: traefik:2.1
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+    - ./traefik:/etc/traefik
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.port=8080"
