@@ -124,20 +124,22 @@ def explorer():
 
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
-        tmpfile = os.path.join(app.config["TEMP_DIR"], filename)
-        input_file.save(tmpfile)
-        uploaded_target_file = os.path.join(str(dir_path), filename)
-        if upload_file(tmpfile, AWS_BUCKET, uploaded_target_file.split(MOUNT_POINT + "/")[1]):
-            flash(f"Successfully uploaded {filename}", "success")
-            app.logger.warn(
-                f" {current_user.email} successfully uploaded a {pretty_size(os.stat(tmpfile).st_size)} file: {uploaded_target_file}"
-            )
-        else:
-            flash(f"Error uploading {filename}", "error")
-            app.logger.error(
-                f" {current_user.email} error uploading a {pretty_size(os.stat(tmpfile).st_size)} file to s3: {uploaded_target_file}"
-            )
-        os.remove(tmpfile)
+        if filename:
+            tmpfile = os.path.join(app.config["TEMP_DIR"], filename)
+            input_file.save(tmpfile)
+            uploaded_target_file = os.path.join(str(dir_path), filename)
+            if upload_file(tmpfile, AWS_BUCKET, uploaded_target_file.split(MOUNT_POINT + "/")[1]):
+                flash(f"Successfully uploaded {filename}", "success")
+                app.logger.warn(
+                    f" {current_user.email} successfully uploaded a {pretty_size(os.stat(tmpfile).st_size)} file: {uploaded_target_file}"
+                )
+            else:
+                flash(f"Error uploading {filename}", "error")
+                app.logger.error(
+                    f" {current_user.email} error uploading a {pretty_size(os.stat(tmpfile).st_size)} file to s3: {uploaded_target_file}"
+                )
+            os.remove(tmpfile)
+            return redirect(request.url)
         return redirect(request.url)
 
 
@@ -188,20 +190,22 @@ def within_dir(dir_path):
 
         input_file = request.files["input_file"]
         filename = secure_filename(input_file.filename)
-        tmpfile = os.path.join(app.config["TEMP_DIR"], filename)
-        input_file.save(tmpfile)
-        uploaded_target_file = os.path.join(str(dir_path), filename)
-        if upload_file(tmpfile, AWS_BUCKET, uploaded_target_file.split(MOUNT_POINT + "/")[1]):
-            flash(f"Successfully uploaded {filename}", "success")
-            app.logger.warn(
-                f" {current_user.email} successfully uploaded a {pretty_size(os.stat(tmpfile).st_size)} file: {uploaded_target_file}"
-            )
-        else:
-            flash(f"Error uploading {filename}", "error")
-            app.logger.error(
-                f" {current_user.email} error uploading a {pretty_size(os.stat(tmpfile).st_size)} file to s3: {uploaded_target_file}"
-            )
-        os.remove(tmpfile)
+        if filename:
+            tmpfile = os.path.join(app.config["TEMP_DIR"], filename)
+            input_file.save(tmpfile)
+            uploaded_target_file = os.path.join(str(dir_path), filename)
+            if upload_file(tmpfile, AWS_BUCKET, uploaded_target_file.split(MOUNT_POINT + "/")[1]):
+                flash(f"Successfully uploaded {filename}", "success")
+                app.logger.warn(
+                    f" {current_user.email} successfully uploaded a {pretty_size(os.stat(tmpfile).st_size)} file: {uploaded_target_file}"
+                )
+            else:
+                flash(f"Error uploading {filename}", "error")
+                app.logger.error(
+                    f" {current_user.email} error uploading a {pretty_size(os.stat(tmpfile).st_size)} file to s3: {uploaded_target_file}"
+                )
+            os.remove(tmpfile)
+            return redirect(request.url)
         return redirect(request.url)
 
 
