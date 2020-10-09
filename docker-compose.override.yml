@@ -1,6 +1,6 @@
 version: '3'
 services:
-  snarkon:
+  bucketview:
     volumes:
       - ./app:/app
       - ~/.aws:/root/.aws

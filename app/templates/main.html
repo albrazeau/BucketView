@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>SNARKON: {{ aws_bucket }}</title>
+    <title>BucketView: {{ aws_bucket }}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
@@ -58,7 +58,7 @@
             </tr>
         </table>
         <br>
-        <h1>Snarkon: {{ aws_bucket }}</h1>
+        <h1>BucketView: {{ aws_bucket }}</h1>
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         <ul class=flashes>

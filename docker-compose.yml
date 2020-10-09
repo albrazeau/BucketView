@@ -1,6 +1,6 @@
 version: '3'
 services:
-  snarkon:
+  bucketview:
     build: ./
     ports:
       - 80:80
