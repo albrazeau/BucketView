@@ -9,6 +9,7 @@ import os
 import subprocess
 from shutil import make_archive
 import logging
+from datetime import datetime
 from modules import mount_bkt, validate_dir_name, make_temp_dir, upload_file, dir_contents, pretty_size
 from functools import partial
 from db import db_init_app, User
@@ -63,10 +64,10 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is None or not user.check_password(form.password.data):
             flash("Invalid username or password", "error")
-            app.logger.warn(f" {form.email.data} login failed")
+            app.logger.warn(f" {str(datetime.now())}: {form.email.data} login failed")
             return redirect(url_for("login"))
         login_user(user, remember=form.remember_me.data)
-        app.logger.warn(f" {user.email} successfully logged in")
+        app.logger.warn(f" {str(datetime.now())}: {user.email} successfully logged in")
         return redirect(url_for("index"))
     return render_template("login.html", title="Sign In", form=form)
 
@@ -105,11 +106,11 @@ def explorer():
             if not os.path.exists(new_dir):
                 os.mkdir(new_dir)
                 flash(f"Successfully created {create_dir}!", "success")
-                app.logger.warn(f" {current_user.email} successfully created a directory: {create_dir}")
+                app.logger.warn(f" {str(datetime.now())}: {current_user.email} successfully created a directory: {create_dir}")
                 return redirect(request.url)
             else:
                 flash(f"{create_dir} already exists!", "error")
-                app.logger.warn(f" {current_user.email} failed to create directory: {create_dir} - it already exists")
+                app.logger.warn(f" {str(datetime.now())}: {current_user.email} failed to create directory: {create_dir} - it already exists")
                 return redirect(request.url)
         elif create_dir and not validate_dir_name(create_dir):
             illegal_chars = r"""`~!@#$%^&*()=+[{]}\|:;"'<,>.?/"""
@@ -118,7 +119,7 @@ def explorer():
                 "error",
             )
             app.logger.warn(
-                f" {current_user.email} failed to create directory: {create_dir} - it contains a special character"
+                f" {str(datetime.now())}: {current_user.email} failed to create directory: {create_dir} - it contains a special character"
             )
             return redirect(request.url)
 
@@ -131,12 +132,12 @@ def explorer():
             if upload_file(tmpfile, AWS_BUCKET, uploaded_target_file.split(MOUNT_POINT + "/")[1]):
                 flash(f"Successfully uploaded {filename}", "success")
                 app.logger.warn(
-                    f" {current_user.email} successfully uploaded a {pretty_size(os.stat(tmpfile).st_size)} file: {uploaded_target_file}"
+                    f" {str(datetime.now())}: {current_user.email} successfully uploaded a {pretty_size(os.stat(tmpfile).st_size)} file: {uploaded_target_file}"
                 )
             else:
                 flash(f"Error uploading {filename}", "error")
                 app.logger.error(
-                    f" {current_user.email} error uploading a {pretty_size(os.stat(tmpfile).st_size)} file to s3: {uploaded_target_file}"
+                    f" {str(datetime.now())}: {current_user.email} error uploading a {pretty_size(os.stat(tmpfile).st_size)} file to s3: {uploaded_target_file}"
                 )
             os.remove(tmpfile)
             return redirect(request.url)
@@ -171,11 +172,11 @@ def within_dir(dir_path):
             if not os.path.exists(new_dir):
                 os.mkdir(new_dir)
                 flash(f"Successfully created {create_dir}!", "success")
-                app.logger.warn(f" {current_user.email} successfully created a directory: {create_dir}")
+                app.logger.warn(f" {str(datetime.now())}: {current_user.email} successfully created a directory: {create_dir}")
                 return redirect(request.url)
             else:
                 flash(f"{create_dir} already exists!", "error")
-                app.logger.warn(f" {current_user.email} failed to create directory: {create_dir} - it already exists")
+                app.logger.warn(f" {str(datetime.now())}: {current_user.email} failed to create directory: {create_dir} - it already exists")
                 return redirect(request.url)
         elif create_dir and not validate_dir_name(create_dir):
             illegal_chars = r"""`~!@#$%^&*()=+[{]}\|:;"'<,>.?/"""
@@ -184,7 +185,7 @@ def within_dir(dir_path):
                 "error",
             )
             app.logger.warn(
-                f" {current_user.email} failed to create directory: {create_dir} - it contains a special character"
+                f" {str(datetime.now())}: {current_user.email} failed to create directory: {create_dir} - it contains a special character"
             )
             return redirect(request.url)
 
@@ -197,12 +198,12 @@ def within_dir(dir_path):
             if upload_file(tmpfile, AWS_BUCKET, uploaded_target_file.split(MOUNT_POINT + "/")[1]):
                 flash(f"Successfully uploaded {filename}", "success")
                 app.logger.warn(
-                    f" {current_user.email} successfully uploaded a {pretty_size(os.stat(tmpfile).st_size)} file: {uploaded_target_file}"
+                    f" {str(datetime.now())}: {current_user.email} successfully uploaded a {pretty_size(os.stat(tmpfile).st_size)} file: {uploaded_target_file}"
                 )
             else:
                 flash(f"Error uploading {filename}", "error")
                 app.logger.error(
-                    f" {current_user.email} error uploading a {pretty_size(os.stat(tmpfile).st_size)} file to s3: {uploaded_target_file}"
+                    f" {str(datetime.now())}: {current_user.email} error uploading a {pretty_size(os.stat(tmpfile).st_size)} file to s3: {uploaded_target_file}"
                 )
             os.remove(tmpfile)
             return redirect(request.url)
@@ -212,7 +213,7 @@ def within_dir(dir_path):
 @app.route(f"/download/<path:filepath>")
 @login_required
 def download_file(filepath):
-    app.logger.warn(f" {current_user.email} downloaded file: {filepath}")
+    app.logger.warn(f" {str(datetime.now())}: {current_user.email} downloaded file: {filepath}")
     return send_file("/" + filepath, as_attachment=True)
 
 
@@ -231,7 +232,7 @@ def download_dir(dir_path):
         os.remove(output_zipfile + ".zip")
         return response
 
-    app.logger.warn(f" {current_user.email} downloaded directory: {str(dir_path) + '.zip'}")
+    app.logger.warn(f" {str(datetime.now())}: {current_user.email} downloaded directory: {str(dir_path) + '.zip'}")
     return send_file(output_zipfile + ".zip", as_attachment=True)
 
 
