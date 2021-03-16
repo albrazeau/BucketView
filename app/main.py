@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 import pathlib as pl
 import os
-import subprocess
+import requests
 from shutil import make_archive
 import logging
 from datetime import datetime
@@ -241,3 +241,12 @@ def download_dir(dir_path):
 def logout():
     logout_user()
     return redirect(url_for("index"))
+
+
+@app.route("/background_process/<path:filepath>")
+@login_required
+def background_process_test(filepath):
+    filepath = filepath if filepath.startswith("/") else "/" + filepath
+    print("wooohooo!!", filepath, flush=True)
+    print(requests.get("http://api:5678/ping").text, flush=True)
+    return ""

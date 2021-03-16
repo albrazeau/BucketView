@@ -16,6 +16,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         crossorigin="anonymous"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
@@ -62,8 +63,8 @@
                 {% for i in range(nav_len) %}
                 <td style="text-align: center; padding-right: 6px; padding-left: 6px;">
                     <span class="folder-icon"><i class="far fa-folder"></i></span>
-                    <a class="nav-path"
-                        href={{ url_for('within_dir', dir_path="/" + "/".join(nav_parts[:i+1])) }}>{{ nav_parts[i] }}</a>
+                    <a class="nav-path" href={{ url_for('within_dir', dir_path="/" + "/" .join(nav_parts[:i+1])) }}>{{
+                        nav_parts[i] }}</a>
                 </td>
                 {% if nav_parts[i] != nav_parts[-1] %}
                 <td class="nav-path" style="text-align: center">/</td>
@@ -112,6 +113,7 @@
                 <tr>
                     <th style="text-align: left">Name</th>
                     <th style="text-align: left">Download Link</th>
+                    <th style="text-align: left">Process System</th>
                     <th style="text-align: left">Last Modified</th>
                     <th style="text-align: left">Size</th>
                 </tr>
@@ -122,14 +124,23 @@
                 <td>
                     <span class="folder-icon"><i class="far fa-folder"></i></span>
                     <a href="{{ d['nav_url'] }}">{{ d['link_name'] }}</a>
-                <td><a href="{{ d['download_url'] }}">Download Zip</a></td>
                 </td>
+                <td><a href="{{ d['download_url'] }}">Download Zip</a></td>
+                <td>--</td>
+
                 {% else %}
                 <td>
                     <span class="file-icon"></span><i class="far fa-file"></i></span>
                     <span>{{ d['link_name'] }}</span>
-                <td><a href="{{ d['download_url'] }}">Download File</a></td>
                 </td>
+                <td><a href="{{ d['download_url'] }}">Download File</a></td>
+
+                {% if d['link_name'].endswith('.gpkg') %}
+                <td><a href=# id=process data="{{ d['download_url'] }}">Process</a></td>
+                {% else %}
+                <td>--</td>
+                {% endif %}
+
                 {% endif %}
                 <td>{{ d['last_modified'] }}</td>
                 <td>{{ d['size'] }}</td>
@@ -144,5 +155,17 @@
         var fileName = document.getElementById("input_file").files[0].name;
         var nextSibling = e.target.nextElementSibling
         nextSibling.innerText = fileName
-    })
+    });
+
+    $(function () {
+        $('a#process').on('click', function (e) {
+            e.preventDefault();
+            var gpkgPath = e.target.attributes.data.nodeValue.replace('/download/', '');
+            $.getJSON('/background_process/' + gpkgPath,
+                function (data) {
+                    //do nothing
+                });
+            return false;
+        });
+    });
 </script>
