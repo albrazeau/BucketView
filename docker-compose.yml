@@ -11,7 +11,7 @@ services:
       - ./logs:/var/log/nginx
       - ./custom.conf:/etc/nginx/conf.d/custom.conf
     environment:
-      - AWS_S3_BUCKET=nyc-dewberry
+      - AWS_S3_BUCKET=nld-realignment
       - SQLITE_DB=db.sqlite
     privileged: true
     labels:
