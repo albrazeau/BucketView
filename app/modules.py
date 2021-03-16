@@ -118,4 +118,6 @@ def dir_contents(pth: pl.Path):
             }
             dir_list.append(item)
 
-    return sorted(dir_list, key=lambda d: d["link_name"]) + sorted(file_list, key=lambda d: d["link_name"])
+    return sorted(dir_list, key=lambda d: d["link_name"].lower()) + sorted(
+        file_list, key=lambda d: d["link_name"].lower()
+    )
