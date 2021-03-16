@@ -6,7 +6,7 @@ services:
       - ./app:/app
       - ~/.aws:/root/.aws
     ports:
-      - 80:80
+      - 8569:80
     privileged: true
     environment:
       - FLASK_APP=main.py

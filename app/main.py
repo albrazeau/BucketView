@@ -268,10 +268,23 @@ def logout():
     return redirect(url_for("index"))
 
 
-@app.route("/background_process/<path:filepath>")
+@app.route("/background_reprocess/<path:filepath>")
 @login_required
-def background_process_test(filepath):
+def background_reprocess(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
-    print("wooohooo!!", filepath, flush=True)
-    print(requests.get("http://api:5678/ping").text, flush=True)
+    print(f"Reprocessing: {filepath}")
+    r = requests.post(f"http://api:5678/reprocess_geopackage?gpkg_path={filepath}")
+    r.raise_for_status()
+    print(r.json())
+    return ""
+
+
+@app.route("/background_compute_leveed_area/<path:filepath>")
+@login_required
+def background_compute_leveed_area(filepath):
+    filepath = filepath if filepath.startswith("/") else "/" + filepath
+    print(f"Computing Leveed Area: {filepath}")
+    r = requests.post(f"http://api:5678/compute_leveed_areas?gpkg_path={filepath}")
+    r.raise_for_status()
+    print(r.json())
     return ""

@@ -114,7 +114,8 @@
                 <tr>
                     <th style="text-align: left">Name</th>
                     <th style="text-align: left">Download Link</th>
-                    <th style="text-align: left">Process System</th>
+                    <th style="text-align: left">Reprocess System</th>
+                    <th style="text-align: left">Compute Leveed Area</th>
                     <th style="text-align: left">Last Modified</th>
                     <th style="text-align: left">Size</th>
                 </tr>
@@ -128,6 +129,7 @@
                 </td>
                 <td><a href="{{ d['download_url'] }}">Download Zip</a></td>
                 <td>--</td>
+                <td>--</td>
 
                 {% else %}
                 <td>
@@ -137,8 +139,10 @@
                 <td><a href="{{ d['download_url'] }}">Download File</a></td>
 
                 {% if d['link_name'].endswith('.gpkg') %}
-                <td><a href=# id=process data="{{ d['download_url'] }}">Process</a></td>
+                <td><a href=# id=reprocess data="{{ d['download_url'] }}">Reprocess</a></td>
+                <td><a href=# id=compute data="{{ d['download_url'] }}">Compute</a></td>
                 {% else %}
+                <td>--</td>
                 <td>--</td>
                 {% endif %}
 
@@ -159,10 +163,22 @@
     });
 
     $(function () {
-        $('a#process').on('click', function (e) {
+        $('a#reprocess').on('click', function (e) {
             e.preventDefault();
             var gpkgPath = e.target.attributes.data.nodeValue.replace('/download/', '');
-            $.getJSON('/background_process/' + gpkgPath,
+            $.getJSON('/background_reprocess/' + gpkgPath,
+                function (data) {
+                    //do nothing
+                });
+            return false;
+        });
+    });
+
+    $(function () {
+        $('a#compute').on('click', function (e) {
+            e.preventDefault();
+            var gpkgPath = e.target.attributes.data.nodeValue.replace('/download/', '');
+            $.getJSON('/background_compute_leveed_area/' + gpkgPath,
                 function (data) {
                     //do nothing
                 });
