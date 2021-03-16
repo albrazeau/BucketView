@@ -1,4 +1,14 @@
-from flask import Flask, redirect, url_for, send_file, request, flash, render_template, after_this_request
+from flask import (
+    Flask,
+    redirect,
+    url_for,
+    send_file,
+    request,
+    flash,
+    render_template,
+    after_this_request,
+    send_from_directory,
+)
 from flask_login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.utils import secure_filename
 from wtforms import Form, FileField, validators, TextField, StringField, PasswordField, BooleanField, SubmitField
@@ -36,6 +46,13 @@ login_manager.login_view = "login"
 db = db_init_app(app)
 
 print = partial(print, flush=True)
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, "static"), "favicon.ico", mimetype="image/vnd.microsoft.icon"
+    )
 
 
 @login_manager.user_loader
@@ -106,11 +123,15 @@ def explorer():
             if not os.path.exists(new_dir):
                 os.mkdir(new_dir)
                 flash(f"Successfully created {create_dir}!", "success")
-                app.logger.warn(f" {str(datetime.now())}: {current_user.email} successfully created a directory: {create_dir}")
+                app.logger.warn(
+                    f" {str(datetime.now())}: {current_user.email} successfully created a directory: {create_dir}"
+                )
                 return redirect(request.url)
             else:
                 flash(f"{create_dir} already exists!", "error")
-                app.logger.warn(f" {str(datetime.now())}: {current_user.email} failed to create directory: {create_dir} - it already exists")
+                app.logger.warn(
+                    f" {str(datetime.now())}: {current_user.email} failed to create directory: {create_dir} - it already exists"
+                )
                 return redirect(request.url)
         elif create_dir and not validate_dir_name(create_dir):
             illegal_chars = r"""`~!@#$%^&*()=+[{]}\|:;"'<,>.?/"""
@@ -172,11 +193,15 @@ def within_dir(dir_path):
             if not os.path.exists(new_dir):
                 os.mkdir(new_dir)
                 flash(f"Successfully created {create_dir}!", "success")
-                app.logger.warn(f" {str(datetime.now())}: {current_user.email} successfully created a directory: {create_dir}")
+                app.logger.warn(
+                    f" {str(datetime.now())}: {current_user.email} successfully created a directory: {create_dir}"
+                )
                 return redirect(request.url)
             else:
                 flash(f"{create_dir} already exists!", "error")
-                app.logger.warn(f" {str(datetime.now())}: {current_user.email} failed to create directory: {create_dir} - it already exists")
+                app.logger.warn(
+                    f" {str(datetime.now())}: {current_user.email} failed to create directory: {create_dir} - it already exists"
+                )
                 return redirect(request.url)
         elif create_dir and not validate_dir_name(create_dir):
             illegal_chars = r"""`~!@#$%^&*()=+[{]}\|:;"'<,>.?/"""
