@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3'
 services:
   bucketview:
     build: ./
@@ -16,9 +16,13 @@ services:
     privileged: true
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.my-app.rule=Host(`example.com`)'
+      - 'traefik.http.routers.my-app.rule=Host(`nld.dewberryanalytics.com`)'
       - 'traefik.http.routers.my-app.tls=true'
       - 'traefik.http.routers.my-app.tls.certresolver=lets-encrypt'
+      - 'traefik.docker.network=traefik_default'
+    networks:
+      - outside
+      - web
   
   traefik:
     image: traefik:2.1
@@ -31,3 +35,13 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       - "traefik.port=8080"
+    networks:
+      - web
+
+networks:
+  outside:
+    external:
+      name: terrastitch_terranet
+  web:
+    driver: bridge
+    name: traefik_default
