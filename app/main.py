@@ -274,7 +274,12 @@ def background_reprocess(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
     print(f"Reprocessing: {filepath}")
     r = requests.post(f"http://api:5678/reprocess_geopackage?gpkg_path={filepath}")
-    r.raise_for_status()
+    try:
+        r.raise_for_status()
+    except:
+        print("Background request failed:")
+        print(r.text)
+        return r.text, 500
     print(r.json())
     return ""
 
@@ -285,6 +290,11 @@ def background_compute_leveed_area(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
     print(f"Computing Leveed Area: {filepath}")
     r = requests.post(f"http://api:5678/compute_leveed_areas?gpkg_path={filepath}")
-    r.raise_for_status()
+    try:
+        r.raise_for_status()
+    except:
+        print("Background request failed:")
+        print(r.text)
+        return r.text, 500
     print(r.json())
     return ""
