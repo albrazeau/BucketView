@@ -8,6 +8,7 @@ from flask import (
     render_template,
     after_this_request,
     send_from_directory,
+    jsonify,
 )
 from flask_login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.utils import secure_filename
@@ -16,6 +17,7 @@ from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 import pathlib as pl
 import os
+import json
 import requests
 from shutil import make_archive
 import logging
@@ -298,3 +300,12 @@ def background_compute_leveed_area(filepath):
         return r.text, 500
     print(r.json())
     return ""
+
+
+@app.route("/view/<path:filepath>")
+@login_required
+def view_file(filepath):
+    filepath = filepath if filepath.startswith("/") else "/" + filepath
+    with open(filepath, "r") as f:
+        contents = json.load(f)
+    return jsonify(contents)
