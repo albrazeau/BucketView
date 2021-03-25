@@ -1,9 +1,8 @@
 version: '3'
 services:
+
   bucketview:
     build: ./
-    # ports:
-    #   - 80:80
     restart: always
     volumes:
       - ./app:/app
@@ -21,8 +20,21 @@ services:
       - 'traefik.http.routers.my-app.tls.certresolver=lets-encrypt'
       - 'traefik.docker.network=traefik_default'
     networks:
-      - outside
+      - nld
       - web
+
+  api:
+    image: dewberrycsi/nld-realignment:v0.5.1
+    ports:
+      - 5678:5678
+    env_file:
+      - ./.env
+    environment:
+      FLASK_ENV: development
+      FLASK_APP: server.py
+    privileged: True
+    networks:
+      - nld
   
   traefik:
     image: traefik:2.1
@@ -39,9 +51,11 @@ services:
       - web
 
 networks:
-  outside:
-    external:
-      name: terrastitch_terranet
+  nld:
+    driver: bridge
+  # nld:
+  #   external:
+  #     name: nld_nld
   web:
     driver: bridge
     name: traefik_default
