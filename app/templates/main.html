@@ -116,7 +116,7 @@
                     <th style="text-align: left">Download Link</th>
                     <th style="text-align: left">Reprocess System</th>
                     <th style="text-align: left">Compute Leveed Area</th>
-                    <th style="text-align: left">View Log</th>
+                    <th style="text-align: left">View</th>
                     <th style="text-align: left">Last Modified</th>
                     <th style="text-align: left">Size</th>
                 </tr>
@@ -145,7 +145,8 @@
                 <td><a href=# id=reprocess data="{{ d['download_url'] }}">Reprocess</a></td>
                 <td><a href=# id=compute data="{{ d['download_url'] }}">Compute</a></td>
                 <td>--</td>
-                {% elif d['link_name'].endswith('.json') %}
+                {% elif d['link_name'].endswith('.json') or d['link_name'].endswith('.html') or
+                d['link_name'].endswith('.png') %}
                 <td>--</td>
                 <td>--</td>
                 <td><a href="{{ '/view/' + d['download_url'].replace('/download/', '') }}">View</a></td>

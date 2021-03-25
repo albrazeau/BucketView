@@ -9,6 +9,8 @@ from flask import (
     after_this_request,
     send_from_directory,
     jsonify,
+    make_response,
+    Response,
 )
 from flask_login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.utils import secure_filename
@@ -22,6 +24,7 @@ import requests
 from shutil import make_archive
 import logging
 from datetime import datetime
+from functools import wraps
 from modules import mount_bkt, validate_dir_name, make_temp_dir, upload_file, dir_contents, pretty_size
 from functools import partial
 from db import db_init_app, User
@@ -48,6 +51,16 @@ login_manager.login_view = "login"
 db = db_init_app(app)
 
 print = partial(print, flush=True)
+
+
+def nocache(view):
+    @wraps(view)
+    def no_cache_view(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, private, max-age=0")
+        return response
+
+    return no_cache_view
 
 
 @app.route("/favicon.ico")
@@ -302,10 +315,23 @@ def background_compute_leveed_area(filepath):
     return ""
 
 
+@nocache
 @app.route("/view/<path:filepath>")
 @login_required
 def view_file(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
-    with open(filepath, "r") as f:
-        contents = json.load(f)
-    return jsonify(contents)
+
+    if filepath.endswith(".json"):
+        with open(filepath, "r") as f:
+            return jsonify(json.load(f))
+
+    elif filepath.endswith(".html"):
+        with open(filepath, "r") as f:
+            return f.read()
+
+    elif filepath.endswith(".png"):
+        with open(filepath, "rb") as f:
+            return Response(response=f.read(), status=200, mimetype="image/png")
+
+    else:
+        return jsonify(f"Unable to view this file type: {os.path.splitext(filepath)[1]}"), 400
