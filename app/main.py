@@ -241,7 +241,7 @@ def within_dir(dir_path):
 @login_required
 def download_file(filepath):
     app.logger.warn(f" {str(datetime.now())}: {current_user.email} downloaded file: {filepath}")
-    return send_file("/" + filepath, as_attachment=True)
+    return send_file("/" + filepath, as_attachment=True, cache_timeout=1)
 
 
 @app.route(f"/download/dir/<path:dir_path>")
