@@ -116,6 +116,7 @@
                     <th style="text-align: left">Download Link</th>
                     <th style="text-align: left">Reprocess System</th>
                     <th style="text-align: left">Compute Leveed Area</th>
+                    <th style="text-align: left">Create Report</th>
                     <th style="text-align: left">View</th>
                     <th style="text-align: left">Last Modified</th>
                     <th style="text-align: left">Size</th>
@@ -133,6 +134,7 @@
                 <td>--</td>
                 <td>--</td>
                 <td>--</td>
+                <td>--</td>
 
                 {% else %}
                 <td>
@@ -144,13 +146,16 @@
                 {% if d['link_name'].endswith('.gpkg') %}
                 <td><a href=# id=reprocess data="{{ d['download_url'] }}">Reprocess</a></td>
                 <td><a href=# id=compute data="{{ d['download_url'] }}">Compute</a></td>
+                <td><a href=# id=report data="{{ d['download_url'] }}">Compute</a></td>
                 <td>--</td>
                 {% elif d['link_name'].endswith('.json') or d['link_name'].endswith('.html') or
                 d['link_name'].endswith('.png') %}
                 <td>--</td>
                 <td>--</td>
+                <td>--</td>
                 <td><a href="{{ '/view/' + d['download_url'].replace('/download/', '') }}">View</a></td>
                 {% else %}
+                <td>--</td>
                 <td>--</td>
                 <td>--</td>
                 <td>--</td>
@@ -180,6 +185,7 @@
                 function (data) {
                     //do nothing
                 });
+            alert("The package is being reprocessed in the background.");
             return false;
         });
     });
@@ -192,6 +198,20 @@
                 function (data) {
                     //do nothing
                 });
+            alert("Leveed areas are being computed in the background.");
+            return false;
+        });
+    });
+
+    $(function () {
+        $('a#report').on('click', function (e) {
+            e.preventDefault();
+            var gpkgPath = e.target.attributes.data.nodeValue.replace('/download/', '');
+            $.getJSON('/background_create_report/' + gpkgPath,
+                function (data) {
+                    //do nothing
+                });
+            alert("A report is being created in the background. The file should appear here shortly.");
             return false;
         });
     });

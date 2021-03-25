@@ -14,7 +14,7 @@ from flask import (
 )
 from flask_login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.utils import secure_filename
-from wtforms import Form, FileField, validators, TextField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms import Form, FileField, TextField, StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 import pathlib as pl
@@ -290,13 +290,13 @@ def logout():
 def background_reprocess(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
     print(f"Reprocessing: {filepath}")
-    r = requests.post(f"http://api:5678/reprocess_geopackage?gpkg_path={filepath}")
+    r = requests.post("http://api:5678/reprocess_geopackage", json={"gpkg_path": filepath})
     try:
         r.raise_for_status()
     except:
         print("Background request failed:")
         print(r.text)
-        return r.text, 500
+        return r.text, r.status_code
     print(r.json())
     return ""
 
@@ -306,13 +306,29 @@ def background_reprocess(filepath):
 def background_compute_leveed_area(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
     print(f"Computing Leveed Area: {filepath}")
-    r = requests.post(f"http://api:5678/compute_leveed_areas?gpkg_path={filepath}")
+    r = requests.post("http://api:5678/compute_leveed_areas", json={"gpkg_path": filepath})
     try:
         r.raise_for_status()
     except:
         print("Background request failed:")
         print(r.text)
-        return r.text, 500
+        return r.text, r.status_code
+    print(r.json())
+    return ""
+
+
+@app.route("/background_create_report/<path:filepath>")
+@login_required
+def background_create_report(filepath):
+    filepath = filepath if filepath.startswith("/") else "/" + filepath
+    print(f"Computing Leveed Area: {filepath}")
+    r = requests.post("http://api:5678/create_report", json={"gpkg_path": filepath})
+    try:
+        r.raise_for_status()
+    except:
+        print("Background request failed:")
+        print(r.text)
+        return r.text, r.status_code
     print(r.json())
     return ""
 
