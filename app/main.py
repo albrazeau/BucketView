@@ -110,6 +110,7 @@ def index():
     return redirect(f"/explorer/{AWS_BUCKET}")
 
 
+@nocache
 @app.route(f"/explorer/{AWS_BUCKET}", methods=["GET", "POST"])
 @login_required
 def explorer():
@@ -180,6 +181,7 @@ def explorer():
         return redirect(request.url)
 
 
+@nocache
 @app.route(f"/explorer/<path:dir_path>", methods=["GET", "POST"])
 @login_required
 def within_dir(dir_path):
