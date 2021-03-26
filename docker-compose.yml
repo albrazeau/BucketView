@@ -12,6 +12,8 @@ services:
     environment:
       - AWS_S3_BUCKET=nld-realignment
       - SQLITE_DB=db.sqlite
+    env_file:
+      - ./.env
     privileged: true
     labels:
       - 'traefik.enable=true'
