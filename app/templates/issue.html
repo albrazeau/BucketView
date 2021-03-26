@@ -46,14 +46,15 @@
         <form action="" method="post" novalidate>
             {{ form.hidden_tag() }}
             <p>
-                {{ form.bug_title.label }}<br>
+                <b>{{ form.bug_title.label }}</b><br>
                 {{ form.bug_title(size=38) }}
                 {% for error in form.bug_title.errors %}
             <div style="color: red;">[ {{ error }} ]</div>
             {% endfor %}
             </p>
             <p>
-                {{ form.bug_report.label }}<br>
+                <b>{{ form.bug_report.label }}</b><br>
+                <i>Please include the system id and group number if relevant.</i><br>
                 {{ form.bug_report(size=50, class="bug-report-body") }}
                 {% for error in form.bug_report.errors %}
             <div style="color: red;">[ {{ error }} ]</div>
