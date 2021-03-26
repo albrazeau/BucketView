@@ -379,7 +379,7 @@ def view_file(filepath):
         with open(filepath, "r") as f:
             return jsonify(json.load(f))
 
-    elif filepath.endswith(".html"):
+    elif filepath.endswith(".html") or filepath.endswith(".csv") or filepath.endswith(".log"):
         with open(filepath, "r") as f:
             return f.read()
 
