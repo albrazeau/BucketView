@@ -8,6 +8,8 @@ services:
     ports:
       - 8569:80
     privileged: true
+    env_file:
+      - ./.env
     environment:
       - FLASK_APP=main.py
       - FLASK_DEBUG=1
@@ -17,10 +19,3 @@ services:
     command: flask run --host=0.0.0.0 --port=80
     # Infinite loop, to keep it alive, for debugging
     # command: bash -c "while true; do echo 'sleeping...' && sleep 10; done"
-    networks:
-      - outside
-
-networks:
-  outside:
-    external:
-      name: terrastitch_terranet

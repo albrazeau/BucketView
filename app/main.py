@@ -14,7 +14,7 @@ from flask import (
 )
 from flask_login import LoginManager, login_required, current_user, logout_user, login_user
 from werkzeug.utils import secure_filename
-from wtforms import Form, FileField, TextField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms import Form, FileField, TextField, StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 import pathlib as pl
@@ -25,6 +25,7 @@ from shutil import make_archive
 import logging
 from datetime import datetime
 from functools import wraps
+from github import Github
 from modules import mount_bkt, validate_dir_name, make_temp_dir, upload_file, dir_contents, pretty_size
 from functools import partial
 from db import db_init_app, User
@@ -87,6 +88,13 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Sign In")
 
 
+class IssueForm(FlaskForm):
+    bug_title = StringField("Title", validators=[DataRequired()])
+    bug_report = TextAreaField("Bug Report", validators=[DataRequired()], render_kw={"class": "bug-report-body"})
+    urgent = BooleanField("This is urgent")
+    submit = SubmitField("Submit")
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -102,6 +110,36 @@ def login():
         app.logger.warn(f" {str(datetime.now())}: {user.email} successfully logged in")
         return redirect(url_for("index"))
     return render_template("login.html", title="Sign In", form=form)
+
+
+@app.route("/report_bug", methods=["GET", "POST"])
+@login_required
+def report_bug():
+    email = current_user.email
+    form = IssueForm()
+
+    if form.validate_on_submit():
+
+        print(f"{os.getenv('GIT_ORG')}/{os.getenv('GIT_REPO')}")
+
+        body = form.bug_report.data + f"\n\n*Submitted by: {email}*"
+        body = body + "\n\n**This issue is urgent**" if form.urgent.data else body
+
+        client = Github(os.getenv("GIT_TOKEN"))
+        repo = client.get_repo(f"{os.getenv('GIT_ORG')}/{os.getenv('GIT_REPO')}")
+        issue = repo.create_issue(
+            title=form.bug_title.data,
+            body=body + "\n\n*This issue was created through BucketView*",
+            assignees=list(repo.get_contributors()),
+        )
+
+        app.logger.warn(f" {str(datetime.now())}: {email} successfully submitted a bug report - {issue}")
+
+        flash("Bug report submitted successfully", "success")
+
+        return render_template("issue.html", title="Report Bug", form=form)
+
+    return render_template("issue.html", title="Report Bug", form=form)
 
 
 @app.route("/")

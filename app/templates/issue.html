@@ -1,0 +1,75 @@
+<html>
+
+<head>
+    <title>BucketView: Report Bug</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .success {
+            background-color: green;
+            color: white;
+            padding: 10px;
+            width: 50%;
+        }
+
+        .error {
+            background-color: rgb(146, 7, 7);
+            color: white;
+            padding: 10px;
+            width: 50%;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .bug-report-body {
+            height: 200;
+            width: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="button" class="btn btn-primary btn-sm" onclick="location.href='{{ url_for('logout') }}';"
+        value="Logout" style="margin-left: 15px; margin-top: 15px;" />
+    <input type="button" class="btn btn-primary btn-sm" onclick="location.href='{{ url_for('index') }}';" value="Home"
+        style="margin-left: 15px; margin-top: 15px; background-color: rgb(120, 47, 255);" />
+    <center>
+        <br><br>
+        <h1>Report Bug</h1>
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.bug_title.label }}<br>
+                {{ form.bug_title(size=38) }}
+                {% for error in form.bug_title.errors %}
+            <div style="color: red;">[ {{ error }} ]</div>
+            {% endfor %}
+            </p>
+            <p>
+                {{ form.bug_report.label }}<br>
+                {{ form.bug_report(size=50, class="bug-report-body") }}
+                {% for error in form.bug_report.errors %}
+            <div style="color: red;">[ {{ error }} ]</div>
+            {% endfor %}
+            </p>
+            <p>{{ form.urgent() }} {{ form.urgent.label }}</p>
+            <p>{{ form.submit() }}</p>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class=flashes>
+            {% for category, message in messages %}
+            <h2 class="{{ category }}">{{ message }}</h2>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </center>
+</body>

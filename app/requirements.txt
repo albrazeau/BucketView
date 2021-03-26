@@ -7,3 +7,4 @@ Flask-WTF
 email-validator
 boto3
 requests
+pygithub
