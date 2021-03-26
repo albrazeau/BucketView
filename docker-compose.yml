@@ -26,7 +26,7 @@ services:
       - web
 
   api:
-    image: dewberrycsi/nld-realignment:v0.5.3
+    image: dewberrycsi/nld-realignment:v0.5.4
     ports:
       - 5678:5678
     env_file:
