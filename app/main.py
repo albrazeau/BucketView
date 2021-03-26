@@ -120,8 +120,6 @@ def report_bug():
 
     if form.validate_on_submit():
 
-        print(f"{os.getenv('GIT_ORG')}/{os.getenv('GIT_REPO')}")
-
         body = form.bug_report.data + f"\n\n*Submitted by: {email}*"
         body = body + "\n\n**This issue is urgent**" if form.urgent.data else body
 
