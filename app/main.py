@@ -373,19 +373,23 @@ def background_create_report(filepath):
 @app.route("/view/<path:filepath>")
 @login_required
 def view_file(filepath):
-    filepath = filepath if filepath.startswith("/") else "/" + filepath
+    try:
+        filepath = filepath if filepath.startswith("/") else "/" + filepath
 
-    if filepath.endswith(".json"):
-        with open(filepath, "r") as f:
-            return jsonify(json.load(f))
+        if filepath.endswith(".json"):
+            with open(filepath, "r") as f:
+                return jsonify(json.load(f))
 
-    elif filepath.endswith(".html") or filepath.endswith(".csv") or filepath.endswith(".log"):
-        with open(filepath, "r") as f:
-            return f.read()
+        elif filepath.endswith(".html") or filepath.endswith(".csv") or filepath.endswith(".log"):
+            with open(filepath, "r") as f:
+                return f.read()
 
-    elif filepath.endswith(".png"):
-        with open(filepath, "rb") as f:
-            return Response(response=f.read(), status=200, mimetype="image/png")
+        elif filepath.endswith(".png"):
+            with open(filepath, "rb") as f:
+                return Response(response=f.read(), status=200, mimetype="image/png")
 
-    else:
-        return jsonify(f"Unable to view this file type: {os.path.splitext(filepath)[1]}"), 400
+        else:
+            return jsonify(f"Unable to view this file type: {os.path.splitext(filepath)[1]}"), 400
+    except Exception as e:
+        app.logger.error(f" {str(datetime.now())}: error viewing file {filepath}: {str(e)}")
+        return f"<br><br><center><h1>Error viewing file: {str(e)}</h1></center>", 500
