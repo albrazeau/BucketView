@@ -64,7 +64,7 @@ def mount_bkt():
             return mnt_pt
     if len(list(pl.Path(mnt_pt).glob("*"))) == 0:
         print(f"mounting bucket {s3_bkt}")
-        subprocess.check_output(["goofys", s3_bkt, mnt_pt])
+        subprocess.check_output(["goofys", "--stat-cache-ttl", "0s", "--type-cache-ttl", "0s", s3_bkt, mnt_pt])
     return mnt_pt
 
 
