@@ -83,11 +83,15 @@ def make_temp_dir(tmp_dir):
 
 def dir_contents(pth: pl.Path):
     try:
-        dir_content = pth.glob("*")
+        dir_content = [
+            x for x in pth.glob("*") if not any([str(x).endswith(".gpkg-journal"), str(x).endswith(".ipynb")])
+        ]
     except OSError:
         print("fixing the mount mount from dir_contents()...")
         mount_bkt()
-        dir_content = pth.glob("*")
+        dir_content = [
+            x for x in pth.glob("*") if not any([str(x).endswith(".gpkg-journal"), str(x).endswith(".ipynb")])
+        ]
     dir_list = []
     file_list = []
     for x in dir_content:
