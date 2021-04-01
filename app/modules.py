@@ -8,6 +8,11 @@ from botocore.exceptions import ClientError
 from flask import url_for
 from datetime import datetime
 import time
+import tempfile
+import uuid
+from shutil import copyfile
+
+print = partial(print, flush=True)
 
 
 def upload_file(file_name, bucket, object_name):
@@ -20,7 +25,24 @@ def upload_file(file_name, bucket, object_name):
     return True
 
 
-print = partial(print, flush=True)
+def download_s3_file(filename: str) -> None:
+    """
+    Download the *airquote* mounted *airquote* file from s3, overwriting itself... on s3.
+    """
+    filename = "/" + filename if not filename.startswith("/") else filename
+    key = filename.split(os.getenv("AWS_S3_BUCKET") + "/")[-1]
+    s3 = boto3.client("s3")
+    print("bucket:", os.getenv("AWS_S3_BUCKET"), "key:", key, "filename:", filename)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpfile = os.path.join(tmpdir, str(uuid.uuid4()))
+        s3.download_file(os.getenv("AWS_S3_BUCKET"), key, tmpfile)
+        print("downloaded to a tmp file:", tmpfile)
+        copyfile(tmpfile, filename)
+        os.remove(tmpfile)
+
+    return None
+
 
 # bytes pretty-printing
 UNITS_MAPPING = [
@@ -64,7 +86,7 @@ def mount_bkt():
             return mnt_pt
     if len(list(pl.Path(mnt_pt).glob("*"))) == 0:
         print(f"mounting bucket {s3_bkt}")
-        subprocess.check_output(["goofys", "--stat-cache-ttl", "0s", "--type-cache-ttl", "0s", s3_bkt, mnt_pt])
+        subprocess.check_output(["goofys", s3_bkt, mnt_pt])
     return mnt_pt
 
 

@@ -26,7 +26,15 @@ import logging
 from datetime import datetime
 from functools import wraps
 from github import Github
-from modules import mount_bkt, validate_dir_name, make_temp_dir, upload_file, dir_contents, pretty_size
+from modules import (
+    mount_bkt,
+    validate_dir_name,
+    make_temp_dir,
+    upload_file,
+    dir_contents,
+    pretty_size,
+    download_s3_file,
+)
 from functools import partial
 from db import db_init_app, User
 
@@ -292,6 +300,7 @@ def within_dir(dir_path):
 @login_required
 def download_file(filepath):
     app.logger.warn(f" {str(datetime.now())}: {current_user.email} downloaded file: {filepath}")
+    download_s3_file(filepath)
     return send_file("/" + filepath, as_attachment=True, cache_timeout=1)
 
 
@@ -377,14 +386,17 @@ def view_file(filepath):
         filepath = filepath if filepath.startswith("/") else "/" + filepath
 
         if filepath.endswith(".json"):
+            download_s3_file(filepath)
             with open(filepath, "r") as f:
                 return jsonify(json.load(f))
 
         elif filepath.endswith(".html") or filepath.endswith(".csv") or filepath.endswith(".log"):
+            download_s3_file(filepath)
             with open(filepath, "r") as f:
                 return f.read()
 
         elif filepath.endswith(".png"):
+            download_s3_file(filepath)
             with open(filepath, "rb") as f:
                 return Response(response=f.read(), status=200, mimetype="image/png")
 
