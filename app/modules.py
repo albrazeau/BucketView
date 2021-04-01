@@ -32,12 +32,12 @@ def download_s3_file(filename: str) -> None:
     filename = "/" + filename if not filename.startswith("/") else filename
     key = filename.split(os.getenv("AWS_S3_BUCKET") + "/")[-1]
     s3 = boto3.client("s3")
-    print("bucket:", os.getenv("AWS_S3_BUCKET"), "key:", key, "filename:", filename)
+    # print("bucket:", os.getenv("AWS_S3_BUCKET"), "key:", key, "filename:", filename)
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpfile = os.path.join(tmpdir, str(uuid.uuid4()))
         s3.download_file(os.getenv("AWS_S3_BUCKET"), key, tmpfile)
-        print("downloaded to a tmp file:", tmpfile)
+        # print("downloaded to a tmp file:", tmpfile)
         copyfile(tmpfile, filename)
         os.remove(tmpfile)
 
