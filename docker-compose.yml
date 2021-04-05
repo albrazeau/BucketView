@@ -26,7 +26,7 @@ services:
       - web
 
   api:
-    image: dewberrycsi/nld-realignment:v0.8.1
+    image: dewberrycsi/nld-realignment:latest
     ports:
       - 5678:5678
     env_file:
@@ -34,9 +34,25 @@ services:
     environment:
       FLASK_ENV: development
       FLASK_APP: server.py
+      MAX_MEMORY_BYTES: 8000000000 # 8gb
     privileged: True
     networks:
       - nld
+
+  redis:
+    image: dewberrycsi/nld-queue:latest
+    networks:
+      - nld
+    env_file:
+      - ./.env
+    # volumes:
+    #   - ./redis/queue.txt:/app/queue.txt
+    ports:
+      - 6379:6379
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
   
   traefik:
     image: traefik:2.1
