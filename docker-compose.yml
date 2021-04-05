@@ -34,7 +34,7 @@ services:
     environment:
       FLASK_ENV: development
       FLASK_APP: server.py
-      MAX_MEMORY_BYTES: 8000000000 # 8gb
+      MAX_MEMORY_BYTES: 12000000000 # 8gb
     privileged: True
     networks:
       - nld

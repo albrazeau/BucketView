@@ -351,7 +351,7 @@ def background_reprocess(filepath):
 def background_compute_leveed_area(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
     print(f"Computing Leveed Area: {filepath}")
-    r = requests.post("http://api:5678/compute_leveed_areas", json={"gpkg_path": filepath})
+    r = requests.post("http://api:5678/queue_leveed_area", json={"gpkg_path": filepath})
     try:
         r.raise_for_status()
     except:
