@@ -44,6 +44,20 @@ def download_s3_file(filename: str) -> None:
     return None
 
 
+def create_presigned_url(filename, expiration=5):
+
+    filename = "/" + filename if not filename.startswith("/") else filename
+    key = filename.split(os.getenv("AWS_S3_BUCKET") + "/")[-1]
+
+    # Generate a presigned URL for the S3 object
+    s3_client = boto3.client("s3")
+    response = s3_client.generate_presigned_url(
+        "get_object", Params={"Bucket": os.getenv("AWS_S3_BUCKET"), "Key": key}, ExpiresIn=expiration
+    )
+
+    return response
+
+
 # bytes pretty-printing
 UNITS_MAPPING = [
     (1 << 50, " PB"),

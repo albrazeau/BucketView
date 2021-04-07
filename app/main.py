@@ -34,6 +34,7 @@ from modules import (
     dir_contents,
     pretty_size,
     download_s3_file,
+    create_presigned_url,
 )
 from functools import partial
 from db import db_init_app, User
@@ -300,8 +301,9 @@ def within_dir(dir_path):
 @login_required
 def download_file(filepath):
     app.logger.warn(f" {str(datetime.now())}: {current_user.email} downloaded file: {filepath}")
-    download_s3_file(filepath)
-    return send_file("/" + filepath, as_attachment=True, cache_timeout=1)
+    # download_s3_file(filepath)
+    # return send_file("/" + filepath, as_attachment=True, cache_timeout=1)
+    return redirect(create_presigned_url(filepath))
 
 
 @app.route(f"/download/dir/<path:dir_path>")
