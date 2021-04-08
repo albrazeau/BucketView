@@ -131,3 +131,4 @@ dmypy.json
 # the testing db
 db.sqlite
 traefik/acme.json
+logs/queue.txt

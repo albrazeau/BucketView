@@ -232,7 +232,6 @@ def explorer():
 def within_dir(dir_path):
 
     form = ReusableForm(request.form)
-    # print(form.errors)
 
     dir_path = pl.Path("/" + dir_path)
 
@@ -336,15 +335,17 @@ def logout():
 @login_required
 def background_reprocess(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
-    print(f"Reprocessing: {filepath}")
+    app.logger.warn(f" {str(datetime.now())}: {current_user.email} reprocessing: {filepath}")
     r = requests.post("http://api:5678/reprocess_geopackage", json={"gpkg_path": filepath})
     try:
         r.raise_for_status()
     except:
         print("Background request failed:")
         print(r.text)
+        app.logger.warn(f" {str(datetime.now())}: {current_user.email} reprocessing failed: {filepath}")
         return r.text, r.status_code
     print(r.json())
+    app.logger.warn(f" {str(datetime.now())}: {current_user.email} reprocessing succeeded: {filepath}")
     return ""
 
 
@@ -352,15 +353,17 @@ def background_reprocess(filepath):
 @login_required
 def background_compute_leveed_area(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
-    print(f"Computing Leveed Area: {filepath}")
+    app.logger.warn(f" {str(datetime.now())}: {current_user.email} computing leveed area: {filepath}")
     r = requests.post("http://api:5678/queue_leveed_area", json={"gpkg_path": filepath})
     try:
         r.raise_for_status()
     except:
         print("Background request failed:")
         print(r.text)
+        app.logger.warn(f" {str(datetime.now())}: {current_user.email} computing leveed area failed: {filepath}")
         return r.text, r.status_code
     print(r.json())
+    app.logger.warn(f" {str(datetime.now())}: {current_user.email} computing leveed area succeeded: {filepath}")
     return ""
 
 
@@ -368,15 +371,17 @@ def background_compute_leveed_area(filepath):
 @login_required
 def background_create_report(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
-    print(f"Computing Leveed Area: {filepath}")
+    app.logger.warn(f" {str(datetime.now())}: {current_user.email} creating report: {filepath}")
     r = requests.post("http://api:5678/create_report", json={"gpkg_path": filepath})
     try:
         r.raise_for_status()
     except:
         print("Background request failed:")
         print(r.text)
+        app.logger.warn(f" {str(datetime.now())}: {current_user.email} creating report failed: {filepath}")
         return r.text, r.status_code
     print(r.json())
+    app.logger.warn(f" {str(datetime.now())}: {current_user.email} creating report succeeded: {filepath}")
     return ""
 
 

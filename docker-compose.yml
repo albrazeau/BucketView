@@ -31,6 +31,8 @@ services:
       - 5678:5678
     env_file:
       - ./.env
+    volumes:
+      - ./logs:/logs
     environment:
       FLASK_ENV: development
       FLASK_APP: server.py
@@ -45,8 +47,8 @@ services:
       - nld
     env_file:
       - ./.env
-    # volumes:
-    #   - ./redis/queue.txt:/app/queue.txt
+    volumes:
+      - ./logs:/logs
     ports:
       - 6379:6379
     deploy:
