@@ -353,17 +353,21 @@ def background_reprocess(filepath):
 @login_required
 def background_compute_leveed_area(filepath):
     filepath = filepath if filepath.startswith("/") else "/" + filepath
-    app.logger.warn(f" {str(datetime.now())}: {current_user.email} computing leveed area: {filepath}")
+    app.logger.warn(f" {str(datetime.now())}: {current_user.email} queueing process - compute leveed area: {filepath}")
     r = requests.post("http://api:5678/queue_leveed_area", json={"gpkg_path": filepath})
     try:
         r.raise_for_status()
     except:
         print("Background request failed:")
         print(r.text)
-        app.logger.warn(f" {str(datetime.now())}: {current_user.email} computing leveed area failed: {filepath}")
+        app.logger.warn(
+            f" {str(datetime.now())}: {current_user.email} queueing process - compute leveed area failed: {filepath}"
+        )
         return r.text, r.status_code
     print(r.json())
-    app.logger.warn(f" {str(datetime.now())}: {current_user.email} computing leveed area succeeded: {filepath}")
+    app.logger.warn(
+        f" {str(datetime.now())}: {current_user.email} queueing process - compute leveed area succeeded: {filepath}"
+    )
     return ""
 
 
